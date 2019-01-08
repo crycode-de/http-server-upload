@@ -1,0 +1,34 @@
+{
+  "name": "http-server-upload",
+  "version": "1.0.0",
+  "description": "A Simple zero-configuration command-line http server for uploading files",
+  "bin": "bin/http-server-upload",
+  "main": "http-server-upload.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "http",
+    "upload",
+    "fileupload",
+    "server"
+  ],
+  "author": "Peter Müller <peter@crycode.de> (https://crycode.de/)",
+  "license": "MIT",
+  "homepage": "https://git.cryhost.de/crycode/http-server-upload",
+  "repository": {
+    "type": "git",
+    "url": "https://git.cryhost.de/crycode/http-server-upload.git"
+  },
+  "bugs": {
+    "url": "https://git.cryhost.de/crycode/http-server-upload/issues"
+  },
+  "files": [
+    "bin/http-server-upload",
+    "http-server-upload.js",
+    "README.md"
+  ],
+  "dependencies": {
+    "formidable": "^1.2.1"
+  }
+}

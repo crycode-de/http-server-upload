@@ -1,0 +1,17 @@
+image: node:8
+
+stages:
+  - deploy
+
+publish-to-npm:
+  stage: deploy
+  script:
+    - npm config set unsafe-perm true
+    - npm config set //registry.npmjs.org/:_authToken=$NPM_TOKEN
+    - npm publish
+  environment:
+    name: production
+    url: https://www.npmjs.com/package/http-server-upload
+  when: manual
+  only:
+    - tags
