@@ -1,5 +1,11 @@
 # http-server-upload
 
+[![NPM version](https://img.shields.io/npm/v/http-server-upload.svg)](https://www.npmjs.com/package/http-server-upload)
+[![Downloads](https://img.shields.io/npm/dm/http-server-upload.svg)](https://www.npmjs.com/package/http-server-upload)
+[![Dependency Status](https://img.shields.io/david/crycode-de/http-server-upload.svg)](https://david-dm.org/crycode-de/http-server-upload)
+
+[![NPM](https://nodei.co/npm/http-server-upload.png?downloads=true)](https://nodei.co/npm/http-server-upload/)
+
 This is a simple zero-configuration command-line http server which provides a lightweight interface to upload files.
 
 By default files are uploaded to the current working directory.
@@ -69,4 +75,4 @@ curl \
 
 MIT license
 
-Copyright (c) 2019 Peter Müller <peter@crycode.de> https://crycode.de
+Copyright (c) 2019-2021 Peter Müller <peter@crycode.de> https://crycode.de
