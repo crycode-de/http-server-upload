@@ -1,25 +1,46 @@
-/* jshint node:true, esversion:6 */
+/*
+ * HTTP Server Upload
+ *
+ * Simple zero-configuration command-line http server which provides a lightweight interface to upload files.
+ *
+ * https://github.com/crycode-de/http-server-upload
+ *
+ * MIT license
+ * Copyright (c) 2019-2021 Peter Müller <peter@crycode.de> https://crycode.de
+ */
 'use strict';
 
 const http = require('http');
 const formidable = require('formidable');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 
 const port = process.env.PORT || 8080;
 const uploadDir = process.env.UPLOAD_DIR || process.argv[2] || process.cwd();
 const uploadTmpDir = process.env.UPLOAD_TMP_DIR || uploadDir;
 const token = process.env.TOKEN || false;
 const pathMatchRegExp = (process.env.PATH_REGEXP) ? new RegExp(process.env.PATH_REGEXP) : /^[a-zA-Z0-9-_/]*$/;
+const maxFileSize = (parseInt(process.env.MAX_FILE_SIZE, 10) || 200) * 1024 * 1024;
 
-http.createServer(function (req, res) {
+console.log('HTTP Server Upload');
+console.log(`Upload target dir is ${uploadDir}`);
+
+http.createServer((req, res) => {
   if (req.url == '/upload' && req.method.toLowerCase() == 'post') {
     const form = new formidable.IncomingForm({
       uploadDir: uploadTmpDir,
-      multiples: true
+      multiples: true,
+      maxFileSize: maxFileSize
     });
 
-    form.parse(req, function (err, fields, files) {
+    form.parse(req, (err, fields, files) => {
+      if (err) {
+        console.log(new Date().toUTCString(), '- Error parsing form data: ' + err.message);
+        res.write('Error parsing form data! ' + err.message);
+        return res.end();
+      }
+
       if (token && fields.token !== token) {
         res.write('Wrong token!');
         return res.end();
@@ -48,10 +69,10 @@ http.createServer(function (req, res) {
           if (!file) return;
           const newPath = path.join(uploadDir, fields.path, file.name);
           fs.renameSync(file.path, newPath);
-          console.log(new Date().toUTCString(), '- file uploaded', newPath);
+          console.log(new Date().toUTCString(), '- File uploaded', newPath);
         });
 
-        res.write('file uploaded!');
+        res.write('File uploaded!');
         res.end();
       });
 
@@ -69,6 +90,16 @@ http.createServer(function (req, res) {
     return res.end();
   }
 }).listen(port, () => {
-  console.log(`http server listening on port ${port}`);
-  console.log('upload target dir is', uploadDir);
+  const ifaces = os.networkInterfaces();
+  Object.keys(ifaces).forEach((dev) => {
+    ifaces[dev].forEach((addr) => {
+      if (addr.family === 'IPv4') {
+        console.log(`  http://${addr.address}:${port}/`);
+      } else if (addr.family === 'IPv6') {
+        console.log(`  http://[${addr.address}]:${port}/`);
+      }
+    });
+  });
+
+  console.log('Hit CTRL-C to stop the server');
 });

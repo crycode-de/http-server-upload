@@ -44,6 +44,7 @@ When the server is running you can visit http://localhost:8080/ to get the uploa
 | `PORT` | The port to use. | `8080` |
 | `UPLOAD_DIR` | The directory where the files should be uploaded to. This overrides the `uploadRootPath` argument. | `uploadRootPath` argument or the current working directory |
 | `UPLOAD_TMP_DIR` | Temp directory for the file upload. | The upload directory. |
+| `MAX_FILE_SIZE` | The maximum allowed file size for uploads in Megabyte. | `200` |
 | `TOKEN` | An optional token which must be provided on upload. | Nothing |
 | `PATH_REGEXP` | A regular expression to verify a given upload path. This should be set with care, because it may allow write access to outside the upload directory. | `/^[a-zA-Z0-9-_/]*$/` |
 
