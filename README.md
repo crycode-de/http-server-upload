@@ -2,7 +2,6 @@
 
 [![NPM version](https://img.shields.io/npm/v/http-server-upload.svg)](https://www.npmjs.com/package/http-server-upload)
 [![Downloads](https://img.shields.io/npm/dm/http-server-upload.svg)](https://www.npmjs.com/package/http-server-upload)
-[![Dependency Status](https://img.shields.io/david/crycode-de/http-server-upload.svg)](https://david-dm.org/crycode-de/http-server-upload)
 
 [![NPM](https://nodei.co/npm/http-server-upload.png?downloads=true)](https://nodei.co/npm/http-server-upload/)
 
