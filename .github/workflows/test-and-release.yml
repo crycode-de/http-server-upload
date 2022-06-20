@@ -15,8 +15,33 @@ on:
 
 jobs:
 
+    tests:
+        if: contains(github.event.head_commit.message, '[skip ci]') == false
+
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [10.x, 12.x, 14.x, 16.x, 18.x]
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Install Dependencies
+              run: npm ci
+
+            - name: Run tests
+              run: npm run test
+
     # Deploys the final package to NPM
     deploy:
+        needs: [tests]
 
         # Trigger this step only when a commit on master is tagged with a version number
         if: |

@@ -6,7 +6,7 @@
  * https://github.com/crycode-de/http-server-upload
  *
  * MIT license
- * Copyright (c) 2019-2021 Peter Müller <peter@crycode.de> https://crycode.de
+ * Copyright (c) 2019-2022 Peter Müller <peter@crycode.de> https://crycode.de
  */
 'use strict';
 
@@ -27,7 +27,8 @@ console.log('HTTP Server Upload');
 console.log(`Upload target dir is ${uploadDir}`);
 
 http.createServer((req, res) => {
-  if (req.url == '/upload' && req.method.toLowerCase() == 'post') {
+
+  if (req.url == '/upload' && req.method.toLowerCase() === 'post') {
     const form = new formidable.IncomingForm({
       uploadDir: uploadTmpDir,
       multiples: true,
@@ -36,13 +37,8 @@ http.createServer((req, res) => {
 
     form.parse(req, (err, fields, files) => {
       if (err) {
-        console.log(new Date().toUTCString(), '- Error parsing form data: ' + err.message);
-        res.write('Error parsing form data! ' + err.message);
-        return res.end();
-      }
-
-      if (token && fields.token !== token) {
-        res.write('Wrong token!');
+        console.log(new Date().toUTCString(), `- Error parsing form data: ${err.message}`);
+        res.write(`Error parsing form data! ${err.message}`);
         return res.end();
       }
 
@@ -50,43 +46,60 @@ http.createServer((req, res) => {
         files.uploads = [files.uploads];
       }
 
+      if (token && fields.token !== token) {
+        res.write('Wrong token!');
+        files.uploads.forEach((file) => file && fs.unlink(file.filepath));
+        return res.end();
+      }
+
       if (fields.path) {
         if (!fields.path.match(pathMatchRegExp)) {
           res.write('Invalid path!');
+          files.uploads.forEach((file) => file && fs.unlink(file.filepath));
           return res.end();
         }
       } else {
         fields.path = '';
       }
 
-      fs.stat(path.join(uploadDir, fields.path), (err, stats) => {
+      fs.stat(path.join(uploadDir, fields.path), (err) => {
         if (err) {
           res.write('Path does not exist!');
+          files.uploads.forEach((file) => file && fs.unlink(file.filepath));
           return res.end();
         }
 
+        let count = 0;
         files.uploads.forEach((file) => {
           if (!file) return;
-          const newPath = path.join(uploadDir, fields.path, file.name);
-          fs.renameSync(file.path, newPath);
+          const newPath = path.join(uploadDir, fields.path, file.originalFilename);
+          fs.renameSync(file.filepath, newPath);
           console.log(new Date().toUTCString(), '- File uploaded', newPath);
+          count++;
         });
 
-        res.write('File uploaded!');
+        res.write(count > 1 ? `${count} files uploaded!` : 'File uploaded!' );
         res.end();
       });
 
     });
   } else {
-    res.writeHead(200, {'Content-Type': 'text/html'});
-    res.write('<form action="upload" method="post" enctype="multipart/form-data">');
-    res.write('Files: <input type="file" name="uploads" multiple="multiple"><br />');
-    res.write('Upload path: <input type="text" name="path" value=""><br />');
-    if (token) {
-      res.write('Token: <input type="text" name="token" value=""><br />');
-    }
-    res.write('<input type="submit" value="Upload!">');
-    res.write('</form>');
+    res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
+    res.write(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>http-server-upload</title>
+</head>
+<body>
+<form action="upload" method="post" enctype="multipart/form-data">
+  Files: <input type="file" name="uploads" multiple="multiple"><br />
+  Upload path: <input type="text" name="path" value=""><br />
+  ${token ? 'Token: <input type="text" name="token" value=""><br />' : ''}
+  <input type="submit" value="Upload!">
+</form>
+</body>
+</html>`);
     return res.end();
   }
 }).listen(port, () => {

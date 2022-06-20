@@ -19,7 +19,7 @@ Optionally a token may be used to protect against unauthorized uploads.
 npm install --global http-server-upload
 ```
 
-This will install `http-server-upload` globally so that it may be tun from the command line.
+This will install `http-server-upload` globally so that it may be run from the command line.
 
 
 ## Usage
@@ -76,4 +76,4 @@ curl \
 
 MIT license
 
-Copyright (c) 2019-2021 Peter Müller <peter@crycode.de> https://crycode.de
+Copyright (c) 2019-2022 Peter Müller <peter@crycode.de> https://crycode.de

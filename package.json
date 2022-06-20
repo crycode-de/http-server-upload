@@ -1,6 +1,6 @@
 {
   "name": "http-server-upload",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "A Simple zero-configuration command-line http server for uploading files",
   "bin": "bin/http-server-upload",
   "main": "http-server-upload.js",
@@ -26,6 +26,12 @@
     "README.md"
   ],
   "dependencies": {
-    "formidable": "^1.2.2"
+    "formidable": "^2.0.1"
+  },
+  "engines": {
+    "node": ">=10"
+  },
+  "scripts": {
+    "test": "./test/test.sh"
   }
 }
