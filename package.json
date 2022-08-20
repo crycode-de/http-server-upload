@@ -1,6 +1,6 @@
 {
   "name": "http-server-upload",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A Simple zero-configuration command-line http server for uploading files",
   "bin": "bin/http-server-upload",
   "main": "http-server-upload.js",
