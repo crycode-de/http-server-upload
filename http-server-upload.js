@@ -16,7 +16,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || process.argv[3] || 8080;
 const uploadDir = process.env.UPLOAD_DIR || process.argv[2] || process.cwd();
 const uploadTmpDir = process.env.UPLOAD_TMP_DIR || uploadDir;
 const token = process.env.TOKEN || false;
