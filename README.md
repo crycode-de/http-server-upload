@@ -50,6 +50,7 @@ corresponding environment variable will be ignored.
 | `--max-file-size` | `MAX_FILE_SIZE` | The maximum allowed file size for uploads in Megabyte. | `200` |
 | `--token` | `TOKEN` | An optional token which must be provided on upload. | Nothing |
 | `--path-regexp` | `PATH_REGEXP` | A regular expression to verify a given upload path. This should be set with care, because it may allow write access to outside the upload directory. | `/^[a-zA-Z0-9-_/]*$/` |
+| `--disable-auto-port` | `DISABLE_AUTO_PORT` | Disable automatic port increase if the port is nor available. | Not set. |
 
 Examples:
 ```
@@ -57,7 +58,7 @@ PORT=9000 UPLOAD_DIR=~/uploads/ UPLOAD_TMP_DIR=/tmp/ TOKEN=my-super-secret-token
 
 http-server-upload --port=9000 --upload-dir="c:\users\peter\Path With Whitespaces\"
 
-PORT=9000 http-server-upload --token=xxx ./
+PORT=9000 http-server-upload --disable-auto-port ./
 ```
 
 

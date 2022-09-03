@@ -17,6 +17,7 @@ const path = require('path');
 const os = require('os');
 
 let port = process.env.PORT || 8080;
+let disableAutoPort = !!process.env.DISABLE_AUTO_PORT;
 let uploadDir = process.env.UPLOAD_DIR || process.cwd();
 let uploadTmpDir = process.env.UPLOAD_TMP_DIR || uploadDir;
 let token = process.env.TOKEN || false;
@@ -35,7 +36,13 @@ while (myArgs.length > 0) {
 
     let [key, val] = arg.split(/=(.*)/); // --dir=test=123 will give ['--dir','test=123','']
 
-    // get value from next arg if not provided by --arg=val
+    // options without values
+    if (key === '--disable-auto-port') {
+      disableAutoPort = true;
+      continue;
+    }
+
+    // options with values - get value from next arg if not provided by --arg=val
     if (typeof val === 'undefined') {
       val = myArgs.shift();
 
@@ -90,7 +97,11 @@ while (myArgs.length > 0) {
 
 console.log(`Upload target dir is ${uploadDir}`);
 
-http.createServer((req, res) => {
+// create the server instance
+const server = http.createServer();
+
+// handle requests
+server.on('request', (req, res) => {
 
   if (req.url == '/upload' && req.method.toLowerCase() === 'post') {
     const form = new formidable.IncomingForm({
@@ -142,13 +153,13 @@ http.createServer((req, res) => {
           count++;
         });
 
-        res.write(count > 1 ? `${count} files uploaded!` : 'File uploaded!' );
+        res.write(count > 1 ? `${count} files uploaded!` : 'File uploaded!');
         res.end();
       });
 
     });
   } else {
-    res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     res.write(`<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -167,7 +178,10 @@ http.createServer((req, res) => {
 </html>`);
     return res.end();
   }
-}).listen(port, () => {
+});
+
+// handle listening events when the server is ready
+server.on('listening', () => {
   const ifaces = os.networkInterfaces();
   Object.keys(ifaces).forEach((dev) => {
     ifaces[dev].forEach((addr) => {
@@ -181,3 +195,18 @@ http.createServer((req, res) => {
 
   console.log('Hit CTRL-C to stop the server');
 });
+
+// handle server errors
+server.on('error', (err) => {
+  if (!disableAutoPort && err.code === 'EADDRINUSE') {
+    // auto port is enabled and address is in use
+    // try next port
+    port++;
+    server.listen(port);
+  } else {
+    console.error(err);
+  }
+});
+
+// start server listening
+server.listen(port);
