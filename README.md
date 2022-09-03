@@ -36,20 +36,28 @@ When the server is running you can visit http://localhost:8080/ to get the uploa
 *Attention:* Already existing files will be overwritten on upload.
 
 
-### Environment variables
+### Parameters and environment variables
 
-| Variable | Description | Default |
-|---|---|---|
-| `PORT` | The port to use. | `8080` |
-| `UPLOAD_DIR` | The directory where the files should be uploaded to. This overrides the `uploadRootPath` argument. | `uploadRootPath` argument or the current working directory |
-| `UPLOAD_TMP_DIR` | Temp directory for the file upload. | The upload directory. |
-| `MAX_FILE_SIZE` | The maximum allowed file size for uploads in Megabyte. | `200` |
-| `TOKEN` | An optional token which must be provided on upload. | Nothing |
-| `PATH_REGEXP` | A regular expression to verify a given upload path. This should be set with care, because it may allow write access to outside the upload directory. | `/^[a-zA-Z0-9-_/]*$/` |
+The optional configuration is done by command line arguments or environment variables.  
+If both are used, the arguments have higher priority and the value from the
+corresponding environment variable will be ignored.
 
-Example:
+| Argument | Variable | Description | Default |
+|---|---|---|---|
+| `--port` | `PORT` | The port to use. | `8080` |
+| `--upload-dir` | `UPLOAD_DIR` | The directory where the files should be uploaded to. This overrides the `uploadRootPath` argument. |  `uploadRootPath` argument or the current working directory |
+| `--upload-tmp-dir` | `UPLOAD_TMP_DIR` | Temp directory for the file upload. | The upload directory. |
+| `--max-file-size` | `MAX_FILE_SIZE` | The maximum allowed file size for uploads in Megabyte. | `200` |
+| `--token` | `TOKEN` | An optional token which must be provided on upload. | Nothing |
+| `--path-regexp` | `PATH_REGEXP` | A regular expression to verify a given upload path. This should be set with care, because it may allow write access to outside the upload directory. | `/^[a-zA-Z0-9-_/]*$/` |
+
+Examples:
 ```
 PORT=9000 UPLOAD_DIR=~/uploads/ UPLOAD_TMP_DIR=/tmp/ TOKEN=my-super-secret-token http-server-upload
+
+http-server-upload --port=9000 --upload-dir="c:\users\peter\Path With Whitespaces\"
+
+PORT=9000 http-server-upload --token=xxx ./
 ```
 
 

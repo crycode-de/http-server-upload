@@ -16,14 +16,78 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const port = process.env.PORT || 8080;
-const uploadDir = process.env.UPLOAD_DIR || process.argv[2] || process.cwd();
-const uploadTmpDir = process.env.UPLOAD_TMP_DIR || uploadDir;
-const token = process.env.TOKEN || false;
-const pathMatchRegExp = (process.env.PATH_REGEXP) ? new RegExp(process.env.PATH_REGEXP) : /^[a-zA-Z0-9-_/]*$/;
-const maxFileSize = (parseInt(process.env.MAX_FILE_SIZE, 10) || 200) * 1024 * 1024;
+let port = process.env.PORT || 8080;
+let uploadDir = process.env.UPLOAD_DIR || process.cwd();
+let uploadTmpDir = process.env.UPLOAD_TMP_DIR || uploadDir;
+let token = process.env.TOKEN || false;
+let pathMatchRegExp = (process.env.PATH_REGEXP) ? new RegExp(process.env.PATH_REGEXP) : /^[a-zA-Z0-9-_/]*$/;
+let maxFileSize = (parseInt(process.env.MAX_FILE_SIZE, 10) || 200) * 1024 * 1024;
 
 console.log('HTTP Server Upload');
+
+// parse arguments
+let uploadDirSetFromArg = false;
+const myArgs = process.argv.slice(2);
+while (myArgs.length > 0) {
+  const arg = myArgs.shift();
+  if (arg.startsWith('--')) {
+    // it's an option ...
+
+    let [key, val] = arg.split(/=(.*)/); // --dir=test=123 will give ['--dir','test=123','']
+
+    // get value from next arg if not provided by --arg=val
+    if (typeof val === 'undefined') {
+      val = myArgs.shift();
+
+      if (typeof val === 'undefined') {
+        console.warn(`WANRING: No value given for command line argument: ${key}`);
+        continue;
+      }
+    }
+
+    switch (key) {
+      case '--port':
+        port = val;
+        break;
+      case '--dir':
+      case '--upload-dir':
+        if (uploadDir === uploadTmpDir) {
+          uploadTmpDir = val;
+        }
+        uploadDir = val;
+        uploadDirSetFromArg = true;
+        break;
+      case '--tmp-dir':
+      case '--upload-tmp-dir':
+        uploadTmpDir = val;
+        break;
+      case '--token':
+        token = val;
+        break;
+      case '--path-regexp':
+        pathMatchRegExp = new RegExp(val);
+        break;
+      case '--max-size':
+      case '--max-file-size':
+        maxFileSize = (parseInt(val, 10) || 200) * 1024 * 1024;
+        break;
+
+      default:
+        console.warn(`WANRING: Unknown command line argument: ${key}`);
+    }
+
+  } else {
+    // only set the upload dir from an argument if not already set
+    if (!uploadDirSetFromArg) {
+      if (uploadDir === uploadTmpDir) {
+        uploadTmpDir = arg;
+      }
+      uploadDir = arg;
+      uploadDirSetFromArg = true;
+    }
+  }
+}
+
 console.log(`Upload target dir is ${uploadDir}`);
 
 http.createServer((req, res) => {
