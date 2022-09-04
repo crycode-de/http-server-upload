@@ -24,7 +24,7 @@ This will install `http-server-upload` globally so that it may be run from the c
 ## Usage
 
 ```
-http-server-upload [uploadRootPath]
+http-server-upload [options] [uploadRootPath]
 ```
 
 `[uploadRootPath]` defaults to the current working directory (`./`).
@@ -33,10 +33,13 @@ Other options can be set using environment variables.
 
 When the server is running you can visit http://localhost:8080/ to get the upload form.
 
+If the desired port is already in use, the port will be increased automatically
+until the next free port is found. This can be disabled, see below.
+
 *Attention:* Already existing files will be overwritten on upload.
 
 
-### Parameters and environment variables
+### Options and environment variables
 
 The optional configuration is done by command line arguments or environment variables.  
 If both are used, the arguments have higher priority and the value from the
