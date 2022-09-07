@@ -48,7 +48,7 @@ while (myArgs.length > 0) {
         }
 
         // options with values - get value from next arg if not provided by --arg=val
-        if (typeof val === "undefined" && key !== "--help" && key !== "-h") {
+        if (typeof val === "undefined" && key !== "--help") {
             val = myArgs.shift();
 
             if (typeof val === "undefined") {
@@ -72,7 +72,6 @@ while (myArgs.length > 0) {
                 uploadDirSetFromArg = true;
                 break;
             case "--help":
-            case "-h":
                 console.log(`This cli is configurable with the following options. Options can be provided by flags or environmental variables.
 
 | Argument | Variable | Description | Default |
@@ -231,7 +230,7 @@ if (!stop) {
                 if (addr.family === "IPv4") {
                     console.log(`  http://${addr.address}:${port}/`);
                 } else if (addr.family === "IPv6") {
-                    console.sdflog(`  http://[${addr.address}]:${port}/`);
+                    console.log(`  http://[${addr.address}]:${port}/`);
                 }
             });
         });
