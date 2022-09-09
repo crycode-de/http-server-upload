@@ -29,6 +29,55 @@ console.log('HTTP Server Upload');
 // parse arguments
 let uploadDirSetFromArg = false;
 const myArgs = process.argv.slice(2);
+
+// help requested?
+if (myArgs.includes('--help') || myArgs.includes('-h')) {
+  console.log(`A Simple zero-configuration command-line http server for uploading files.
+
+The optional configuration is done by command line arguments or environment variables.
+If both are used, the arguments have higher priority and the value from the corresponding environment variable will be ignored.
+
+Usage:
+  http-server-upload [arguments] [uploadRootPath]
+
+Argument | Environmen variable
+  Description [Default value]
+
+--port | PORT
+  The port to use. [8080]
+--upload-dir | UPLOAD_DIR
+  The directory where the files should be uploaded to.
+  This overrides the uploadRootPath argument.
+   [uploadRootPath argument or the current working directory]
+--upload-tmp-dir | UPLOAD_TMP_DIR
+  Temp directory for the file upload. [The upload directory]
+--max-file-size | MAX_FILE_SIZE
+  The maximum allowed file size for uploads in Megabyte. [200]
+--token | TOKEN
+  An optional token which must be provided on upload. [Nothing]
+--path-regexp | PATH_REGEXP
+  A regular expression to verify a given upload path.
+  This should be set with care, because it may allow write access
+  to outside the upload directory. [/^[a-zA-Z0-9-_/]*$/]
+--disable-auto-port | DISABLE_AUTO_PORT
+  Disable automatic port increase if the port is nor available. [Not set]
+--help or -h
+  Show this help text.
+
+Examples:
+
+PORT=9000 UPLOAD_DIR=~/uploads/ UPLOAD_TMP_DIR=/tmp/ TOKEN=my-super-secret-token http-server-upload
+
+http-server-upload --port=9000 --upload-dir="c:\\users\\peter\\Path With Whitespaces\\"
+
+PORT=9000 http-server-upload --disable-auto-port ./
+
+Additional information:
+  https://github.com/crycode-de/http-server-upload
+`);
+  process.exit(0);
+}
+
 while (myArgs.length > 0) {
   const arg = myArgs.shift();
   if (arg.startsWith('--')) {

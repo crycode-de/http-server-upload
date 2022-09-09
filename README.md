@@ -24,7 +24,7 @@ This will install `http-server-upload` globally so that it may be run from the c
 ## Usage
 
 ```
-http-server-upload [options] [uploadRootPath]
+http-server-upload [arguments] [uploadRootPath]
 ```
 
 `[uploadRootPath]` defaults to the current working directory (`./`).
@@ -39,7 +39,7 @@ until the next free port is found. This can be disabled, see below.
 *Attention:* Already existing files will be overwritten on upload.
 
 
-### Options and environment variables
+### Arguments and environment variables
 
 The optional configuration is done by command line arguments or environment variables.  
 If both are used, the arguments have higher priority and the value from the
@@ -48,12 +48,13 @@ corresponding environment variable will be ignored.
 | Argument | Variable | Description | Default |
 |---|---|---|---|
 | `--port` | `PORT` | The port to use. | `8080` |
-| `--upload-dir` | `UPLOAD_DIR` | The directory where the files should be uploaded to. This overrides the `uploadRootPath` argument. |  `uploadRootPath` argument or the current working directory |
+| `--upload-dir` | `UPLOAD_DIR` | The directory where the files should be uploaded to. This overrides the `uploadRootPath` argument. | `uploadRootPath` argument or the current working directory |
 | `--upload-tmp-dir` | `UPLOAD_TMP_DIR` | Temp directory for the file upload. | The upload directory. |
 | `--max-file-size` | `MAX_FILE_SIZE` | The maximum allowed file size for uploads in Megabyte. | `200` |
 | `--token` | `TOKEN` | An optional token which must be provided on upload. | Nothing |
 | `--path-regexp` | `PATH_REGEXP` | A regular expression to verify a given upload path. This should be set with care, because it may allow write access to outside the upload directory. | `/^[a-zA-Z0-9-_/]*$/` |
 | `--disable-auto-port` | `DISABLE_AUTO_PORT` | Disable automatic port increase if the port is nor available. | Not set. |
+| `--help`, `-h` | | Show some help text | |
 
 Examples:
 ```
