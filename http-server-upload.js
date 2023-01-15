@@ -217,8 +217,8 @@ server.on('request', (req, res) => {
   <title>http-server-upload</title>
 </head>
 <body>
-<form action="upload" method="post" enctype="multipart/form-data">
-  Files: <input type="file" name="uploads" multiple="multiple"><br />
+<form action="upload" method="post" enctype="multipart/form-data" onsubmit="let totalSize=0, files=document.getElementById('fileinput').files; for (let file of files){totalSize+=file.size} if(files.length){return (totalSize<${maxFileSize})?true:(alert(\`Cannot upload. Input files \${(totalSize/1024/1024).toFixed(2)} MB exceed ${maxFileSize/1024/1024} MB limit.\`),false) }else{alert('No file selected.');return false}">
+  Files: <input id="fileinput" type="file" name="uploads" multiple="multiple"><br />
   Upload path: <input type="text" name="path" value=""><br />
   ${token ? 'Token: <input type="text" name="token" value=""><br />' : ''}
   <input type="submit" value="Upload!">
