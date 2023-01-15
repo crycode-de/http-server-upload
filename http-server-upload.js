@@ -6,7 +6,7 @@
  * https://github.com/crycode-de/http-server-upload
  *
  * MIT license
- * Copyright (c) 2019-2022 Peter Müller <peter@crycode.de> https://crycode.de
+ * Copyright (c) 2019-2023 Peter Müller <peter@crycode.de> https://crycode.de
  */
 'use strict';
 
