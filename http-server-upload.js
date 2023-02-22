@@ -186,11 +186,18 @@ server.on('request', (req, res) => {
         fields.path = '';
       }
 
-      fs.stat(path.join(uploadDir, fields.path), (err) => {
+      targetPath = path.join(uploadDir, fields.path);
+      fs.stat(targetPath, (err) => {
         if (err) {
-          res.write('Path does not exist!');
-          files.uploads.forEach((file) => file && fs.unlink(file.filepath));
-          return res.end();
+          console.log(`Target path ${targetPath} does not exist, trying to create it...`);
+          fs.mkdir(targetPath, (err) => {
+            if (err) {
+              console.log('Unable to create target path folder !');
+              res.write('Unable to create target path folder !');
+              files.uploads.forEach((file) => file && fs.unlink(file.filepath));
+              return res.end();
+            }
+          });
         }
 
         let count = 0;
