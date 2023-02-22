@@ -23,6 +23,7 @@ let uploadTmpDir = process.env.UPLOAD_TMP_DIR || uploadDir;
 let token = process.env.TOKEN || false;
 let pathMatchRegExp = (process.env.PATH_REGEXP) ? new RegExp(process.env.PATH_REGEXP) : /^[a-zA-Z0-9-_/]*$/;
 let maxFileSize = (parseInt(process.env.MAX_FILE_SIZE, 10) || 200) * 1024 * 1024;
+let enableFolderCreation = !!process.env.ENABLE_FOLDER_CREATION;
 
 console.log('HTTP Server Upload');
 
@@ -61,6 +62,8 @@ Argument | Environmen variable
   to outside the upload directory. [/^[a-zA-Z0-9-_/]*$/]
 --disable-auto-port | DISABLE_AUTO_PORT
   Disable automatic port increase if the port is nor available. [Not set]
+--enable-folder-creation | ENABLE_FOLDER_CREATION
+  Enable automatic folder creation when uploading file to inexisting folder. [Not set]
 --help or -h
   Show this help text.
 
@@ -70,7 +73,7 @@ PORT=9000 UPLOAD_DIR=~/uploads/ UPLOAD_TMP_DIR=/tmp/ TOKEN=my-super-secret-token
 
 http-server-upload --port=9000 --upload-dir="c:\\users\\peter\\Path With Whitespaces\\"
 
-PORT=9000 http-server-upload --disable-auto-port ./
+PORT=9000 http-server-upload --disable-auto-port --enable-folder-creation ./
 
 Additional information:
   https://github.com/crycode-de/http-server-upload
@@ -88,6 +91,10 @@ while (myArgs.length > 0) {
     // options without values
     if (key === '--disable-auto-port') {
       disableAutoPort = true;
+      continue;
+    }
+    if (key === '--enable-folder-creation') {
+      enableFolderCreation = true;
       continue;
     }
 
@@ -189,15 +196,29 @@ server.on('request', (req, res) => {
       let targetPath = path.join(uploadDir, fields.path);
       fs.stat(targetPath, (err) => {
         if (err) {
-          console.log(`Target path ${targetPath} does not exist, trying to create it...`);
-          fs.mkdir(targetPath, (err) => {
-            if (err) {
-              console.log('Unable to create target path folder !');
-              res.write('Unable to create target path folder !');
-              files.uploads.forEach((file) => file && fs.unlink(file.filepath));
-              return res.end();
-            }
-          });
+          if (enableFolderCreation) {
+            console.log(`Target path folder ${targetPath} does not exist, creating it...`);
+            fs.mkdir(targetPath, (err) => {
+              if (err) {
+                console.log(`Unable to create target path folder ${targetPath}!`);
+                res.write('Unable to create target path folder!');
+                files.uploads.forEach((file) => file && fs.unlink(file.filepath, (err) => {
+                  if (err) {
+                    console.log('Error removing temporary file!');
+                  }
+                }));
+                return res.end();
+              }
+            });
+          } else {
+            res.write('Path does not exist!');
+            files.uploads.forEach((file) => file && fs.unlink(file.filepath, (err) => {
+              if (err) {
+                console.log('Error removing temporary file!');
+              }
+            }));
+            return res.end();
+          }
         }
 
         let count = 0;
