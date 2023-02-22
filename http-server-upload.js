@@ -186,7 +186,7 @@ server.on('request', (req, res) => {
         fields.path = '';
       }
 
-      targetPath = path.join(uploadDir, fields.path);
+      let targetPath = path.join(uploadDir, fields.path);
       fs.stat(targetPath, (err) => {
         if (err) {
           console.log(`Target path ${targetPath} does not exist, trying to create it...`);
