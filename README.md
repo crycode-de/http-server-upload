@@ -54,6 +54,7 @@ corresponding environment variable will be ignored.
 | `--token` | `TOKEN` | An optional token which must be provided on upload. | Nothing |
 | `--path-regexp` | `PATH_REGEXP` | A regular expression to verify a given upload path. This should be set with care, because it may allow write access to outside the upload directory. | `/^[a-zA-Z0-9-_/]*$/` |
 | `--disable-auto-port` | `DISABLE_AUTO_PORT` | Disable automatic port increase if the port is nor available. | Not set. |
+| `--enable-folder-creation` | `ENABLE_FOLDER_CREATION` | Enable automatic folder creation when uploading file to non-existent folder. | Not set. |
 | `--help`, `-h` | | Show some help text | |
 
 Examples:
@@ -62,7 +63,7 @@ PORT=9000 UPLOAD_DIR=~/uploads/ UPLOAD_TMP_DIR=/tmp/ TOKEN=my-super-secret-token
 
 http-server-upload --port=9000 --upload-dir="c:\users\peter\Path With Whitespaces\"
 
-PORT=9000 http-server-upload --disable-auto-port ./
+PORT=9000 http-server-upload --disable-auto-port --enable-folder-creation ./
 ```
 
 

@@ -63,7 +63,7 @@ Argument | Environmen variable
 --disable-auto-port | DISABLE_AUTO_PORT
   Disable automatic port increase if the port is nor available. [Not set]
 --enable-folder-creation | ENABLE_FOLDER_CREATION
-  Enable automatic folder creation when uploading file to inexisting folder. [Not set]
+  Enable automatic folder creation when uploading file to non-existent folder. [Not set]
 --help or -h
   Show this help text.
 
@@ -193,7 +193,7 @@ server.on('request', (req, res) => {
         fields.path = '';
       }
 
-      let targetPath = path.join(uploadDir, fields.path);
+      const targetPath = path.join(uploadDir, fields.path);
       fs.stat(targetPath, (err) => {
         if (err) {
           if (enableFolderCreation) {
