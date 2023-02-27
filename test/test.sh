@@ -7,7 +7,7 @@ cd $(dirname ${BASH_SOURCE[0]:-$0})
 function cleanup {
   RV=$?
 
-  rm -r tmp0 tmp1 tmp2
+  rm -r tmp0 tmp1 tmp2 tmp3
   if [ -n "$PID" ]; then
     kill -s SIGINT $PID 2>/dev/null
   fi
@@ -21,7 +21,7 @@ trap cleanup EXIT
 
 echo -n "Node.js: "
 node -v
-echo -n "hhtp-server-upload: "
+echo -n "http-server-upload: "
 grep '"version":' ../package.json | cut -d'"' -f4
 
 echo -e "\n----- Create files -----\n"
@@ -37,6 +37,7 @@ echo -e "\n----- Start server -----\n"
 
 export UPLOAD_TMP_DIR=./tmp0/
 export TOKEN=test-token
+export ENABLE_FOLDER_CREATION=true
 node ../http-server-upload.js &
 PID=$!
 
@@ -52,11 +53,23 @@ curl \
   http://localhost:8080/upload
 echo
 
+echo -e "\n----- Upload files with folder creation -----\n"
+
+curl \
+  -F "uploads=@tmp1/file.txt" \
+  -F "path=tmp3" \
+  -F "token=$TOKEN" \
+  http://localhost:8080/upload
+echo
+
 echo -e "\n----- Check files -----\n"
 cmp tmp1/file.txt tmp2/file.txt
 echo "file.txt ok"
 
 cmp tmp1/file.bin tmp2/file.bin
 echo "file.bin ok"
+
+cmp tmp1/file.txt tmp3/file.txt
+echo "file.txt with folder creation ok"
 
 echo -e "\n----- Checks passed -----\n"
