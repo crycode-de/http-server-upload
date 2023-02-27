@@ -198,7 +198,7 @@ server.on('request', (req, res) => {
         if (err) {
           if (enableFolderCreation) {
             console.log(`Target path folder ${targetPath} does not exist, creating it...`);
-            fs.mkdir(targetPath, (err) => {
+            fs.mkdirSync(targetPath, (err) => {
               if (err) {
                 console.log(`Unable to create target path folder ${targetPath}!`);
                 res.write('Unable to create target path folder!');
