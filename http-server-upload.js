@@ -209,6 +209,19 @@ server.on('request', (req, res) => {
                 }));
                 return res.end();
               }
+
+              let count = 0;
+              files.uploads.forEach((file) => {
+                if (!file) return;
+                const newPath = path.join(uploadDir, fields.path, file.originalFilename);
+                fs.renameSync(file.filepath, newPath);
+                console.log(new Date().toUTCString(), '- File uploaded', newPath);
+                count++;
+              });
+      
+              res.write(count > 1 ? `${count} files uploaded!` : 'File uploaded!');
+              return res.end();
+
             });
           } else {
             res.write('Path does not exist!');
