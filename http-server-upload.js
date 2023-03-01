@@ -12,7 +12,7 @@
 
 const http = require('http');
 const formidable = require('formidable');
-const fs = require('fs');
+const fsPromises = require('fs').promises;
 const path = require('path');
 const os = require('os');
 
@@ -160,13 +160,14 @@ const server = http.createServer();
 server.on('request', (req, res) => {
 
   if (req.url == '/upload' && req.method.toLowerCase() === 'post') {
+    // handle upload
     const form = new formidable.IncomingForm({
       uploadDir: uploadTmpDir,
       multiples: true,
       maxFileSize: maxFileSize
     });
 
-    form.parse(req, (err, fields, files) => {
+    form.parse(req, async (err, fields, files) => {
       if (err) {
         console.log(new Date().toUTCString(), `- Error parsing form data: ${err.message}`);
         res.write(`Error parsing form data! ${err.message}`);
@@ -179,63 +180,87 @@ server.on('request', (req, res) => {
 
       if (token && fields.token !== token) {
         res.write('Wrong token!');
-        files.uploads.forEach((file) => file && fs.unlink(file.filepath));
+        for (const file of files.uploads) {
+          if (!file) continue;
+          try {
+            await fsPromises.unlink(file.filepath);
+          } catch (err) {
+            console.log(`Error removing temporary file! ${file.filepath} ${err}`);
+          }
+        }
         return res.end();
       }
+
+      let targetPath = uploadDir;
 
       if (fields.path) {
         if (!fields.path.match(pathMatchRegExp)) {
           res.write('Invalid path!');
-          files.uploads.forEach((file) => file && fs.unlink(file.filepath));
+          for (const file of files.uploads) {
+            if (!file) continue;
+            try {
+              await fsPromises.unlink(file.filepath);
+            } catch (err) {
+              console.log(`Error removing temporary file! ${file.filepath} ${err}`);
+            }
+          }
           return res.end();
         }
-      } else {
-        fields.path = '';
+
+        targetPath = path.join(uploadDir, fields.path);
       }
 
-      const targetPath = path.join(uploadDir, fields.path);
-      fs.stat(targetPath, (err) => {
-        if (err) {
-          if (enableFolderCreation) {
-            console.log(`Target path folder ${targetPath} does not exist, creating it...`);
-            fs.mkdirSync(targetPath, (err) => {
-              if (err) {
-                console.log(`Unable to create target path folder ${targetPath}!`);
-                res.write('Unable to create target path folder!');
-                files.uploads.forEach((file) => file && fs.unlink(file.filepath, (err) => {
-                  if (err) {
-                    console.log('Error removing temporary file!');
-                  }
-                }));
-                return res.end();
-              }
-            });
-          } else {
-            res.write('Path does not exist!');
-            files.uploads.forEach((file) => file && fs.unlink(file.filepath, (err) => {
-              if (err) {
-                console.log('Error removing temporary file!');
-              }
-            }));
+      // check if target folder exists - if not create it if folder creation is enabled
+      try {
+        // get path stats and expect an error if not exists
+        await fsPromises.stat(targetPath);
+
+      } catch (err) {
+        // path does not exist
+        if (enableFolderCreation) {
+          console.log(`Target path ${targetPath} does not exist, creating it`);
+          try {
+            await fsPromises.mkdir(targetPath, { recursive: true });
+          } catch (err2) {
+            console.log(`Error creating target path! ${err2}`);
+            res.write(`Error creating target path! ${err2.message}`);
             return res.end();
           }
+        } else {
+          res.write('Path does not exist!');
+          for (const file of files.uploads) {
+            if (!file) continue;
+            try {
+              await fsPromises.unlink(file.filepath);
+            } catch (err2) {
+              console.log(`Error removing temporary file! ${file.filepath} ${err2}`);
+            }
+          }
+          return res.end();
         }
+      }
 
-        let count = 0;
-        files.uploads.forEach((file) => {
-          if (!file) return;
-          const newPath = path.join(uploadDir, fields.path, file.originalFilename);
-          fs.renameSync(file.filepath, newPath);
+      // move uploaded files to target path
+      let count = 0;
+      for (const file of files.uploads) {
+        if (!file) continue;
+        const newPath = path.join(targetPath, file.originalFilename);
+        try {
+          await fsPromises.rename(file.filepath, newPath);
           console.log(new Date().toUTCString(), '- File uploaded', newPath);
           count++;
-        });
+        } catch (err) {
+          console.log(`Error moving temporary file to target path! ${err}`);
+        }
+      }
 
-        res.write(count > 1 ? `${count} files uploaded!` : 'File uploaded!');
-        res.end();
-      });
+      res.write(count > 1 ? `${count} files uploaded!` : 'File uploaded!');
+      res.end();
 
     });
+
   } else {
+    // show index page
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     res.write(`<!DOCTYPE html>
 <html lang="en">
