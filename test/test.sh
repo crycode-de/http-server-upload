@@ -53,6 +53,24 @@ curl \
   http://localhost:8080/upload
 echo
 
+echo -e "\n----- Upload piped data -----\n"
+
+cat tmp1/file.txt \
+  | curl \
+  -F "uploads=@-;filename=piped.txt;type=text/plain" \
+  -F "path=tmp2" \
+  -F "token=$TOKEN" \
+  http://localhost:8080/upload
+echo
+
+cat tmp1/file.bin \
+  | curl \
+  -F "uploads=@-;filename=piped.bin;type=application/octet-stream" \
+  -F "path=tmp2" \
+  -F "token=$TOKEN" \
+  http://localhost:8080/upload
+echo
+
 echo -e "\n----- Upload files with folder creation -----\n"
 
 curl \
@@ -68,6 +86,12 @@ echo "file.txt ok"
 
 cmp tmp1/file.bin tmp2/file.bin
 echo "file.bin ok"
+
+cmp tmp1/file.txt tmp2/piped.txt
+echo "piped.txt ok"
+
+cmp tmp1/file.bin tmp2/piped.bin
+echo "piped.bin ok"
 
 cmp tmp1/file.txt tmp3/file.txt
 echo "file.txt with folder creation ok"
