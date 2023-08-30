@@ -84,6 +84,11 @@ curl \
   http://localhost:8080/upload
 ```
 
+Example for uploading content from a pipe:
+```
+cat my-file.dat | curl -F "uploads=@-;filename=my-file.dat;type=application/octet-stream" http://localhost:8080/upload
+```
+Notice the required `filename` and `type` defintions for uploading piped data.
 
 ## License
 

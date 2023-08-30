@@ -153,6 +153,23 @@ while (myArgs.length > 0) {
 
 console.log(`Upload target dir is ${uploadDir}`);
 
+/**
+ * Cleanup uploaded temp files.
+ * @param {formidable.File[] | undefined} uploads
+ */
+async function cleanupUploads (uploads) {
+  if (!uploads) return;
+
+  for (const file of uploads) {
+    if (!file) continue;
+    try {
+      await fsPromises.unlink(file.filepath);
+    } catch (err) {
+      console.log(`Error removing temporary file! ${file.filepath} ${err}`);
+    }
+  }
+}
+
 // create the server instance
 const server = http.createServer();
 
@@ -164,7 +181,7 @@ server.on('request', (req, res) => {
     const form = new formidable.IncomingForm({
       uploadDir: uploadTmpDir,
       multiples: true,
-      maxFileSize: maxFileSize
+      maxFileSize: maxFileSize,
     });
 
     form.parse(req, async (err, fields, files) => {
@@ -180,14 +197,21 @@ server.on('request', (req, res) => {
 
       if (token && fields.token !== token) {
         res.write('Wrong token!');
-        for (const file of files.uploads) {
-          if (!file) continue;
-          try {
-            await fsPromises.unlink(file.filepath);
-          } catch (err) {
-            console.log(`Error removing temporary file! ${file.filepath} ${err}`);
-          }
+        await cleanupUploads(files.uploads);
+        return res.end();
+      }
+
+      // check if any files are uploaded
+      if (!files.uploads[0]) {
+        // If a file is uploaded without Content-Type given for the multipart part
+        // it's parsed as a string field and not as file. Send a detailed error
+        // message in this case.
+        if (fields.uploads) {
+          res.write('No files uploaded! A field called "uploads" is preset but there was probably missing the "Content-Type" for it. Check the docs how to solve this.');
+        } else {
+          res.write('No files uploaded!');
         }
+        await cleanupUploads(files.uploads);
         return res.end();
       }
 
@@ -196,14 +220,7 @@ server.on('request', (req, res) => {
       if (fields.path) {
         if (!fields.path.match(pathMatchRegExp)) {
           res.write('Invalid path!');
-          for (const file of files.uploads) {
-            if (!file) continue;
-            try {
-              await fsPromises.unlink(file.filepath);
-            } catch (err) {
-              console.log(`Error removing temporary file! ${file.filepath} ${err}`);
-            }
-          }
+          await cleanupUploads(files.uploads);
           return res.end();
         }
 
@@ -228,14 +245,7 @@ server.on('request', (req, res) => {
           }
         } else {
           res.write('Path does not exist!');
-          for (const file of files.uploads) {
-            if (!file) continue;
-            try {
-              await fsPromises.unlink(file.filepath);
-            } catch (err2) {
-              console.log(`Error removing temporary file! ${file.filepath} ${err2}`);
-            }
-          }
+          await cleanupUploads(files.uploads);
           return res.end();
         }
       }
