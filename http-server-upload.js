@@ -187,6 +187,7 @@ server.on('request', (req, res) => {
     form.parse(req, async (err, fields, files) => {
       if (err) {
         console.log(new Date().toUTCString(), `- Error parsing form data: ${err.message}`);
+        res.statusCode = 400; // Bad Request
         res.write(`Error parsing form data! ${err.message}`);
         return res.end();
       }
@@ -196,6 +197,7 @@ server.on('request', (req, res) => {
       }
 
       if (token && fields.token !== token) {
+        res.statusCode = 401; // Unauthorized
         res.write('Wrong token!');
         await cleanupUploads(files.uploads);
         return res.end();
@@ -203,6 +205,7 @@ server.on('request', (req, res) => {
 
       // check if any files are uploaded
       if (!files.uploads[0]) {
+        res.statusCode = 400; // Bad Request
         // If a file is uploaded without Content-Type given for the multipart part
         // it's parsed as a string field and not as file. Send a detailed error
         // message in this case.
@@ -219,6 +222,7 @@ server.on('request', (req, res) => {
 
       if (fields.path) {
         if (!fields.path.match(pathMatchRegExp)) {
+          res.statusCode = 400; // Bad Request
           res.write('Invalid path!');
           await cleanupUploads(files.uploads);
           return res.end();
@@ -240,10 +244,12 @@ server.on('request', (req, res) => {
             await fsPromises.mkdir(targetPath, { recursive: true });
           } catch (err2) {
             console.log(`Error creating target path! ${err2}`);
+            res.statusCode = 500; // Internal Server Error
             res.write(`Error creating target path! ${err2.message}`);
             return res.end();
           }
         } else {
+          res.statusCode = 400; // Bad Request
           res.write('Path does not exist!');
           await cleanupUploads(files.uploads);
           return res.end();
@@ -264,6 +270,7 @@ server.on('request', (req, res) => {
         }
       }
 
+      res.statusCode = 200; // OK
       res.write(count > 1 ? `${count} files uploaded!` : 'File uploaded!');
       res.end();
 
