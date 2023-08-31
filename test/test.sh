@@ -7,7 +7,7 @@ cd $(dirname ${BASH_SOURCE[0]:-$0})
 function cleanup {
   RV=$?
 
-  rm -r tmp0 tmp1 tmp2 tmp3
+  rm -rf tmp0 tmp1 tmp2 tmp3
   if [ -n "$PID" ]; then
     kill -s SIGINT $PID 2>/dev/null
   fi
@@ -38,6 +38,8 @@ echo -e "\n----- Start server -----\n"
 export UPLOAD_TMP_DIR=./tmp0/
 export TOKEN=test-token
 export ENABLE_FOLDER_CREATION=true
+export PORT=8080
+export DISABLE_AUTO_PORT=true
 node ../http-server-upload.js &
 PID=$!
 

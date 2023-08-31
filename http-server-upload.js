@@ -174,7 +174,7 @@ async function cleanupUploads (uploads) {
 const server = http.createServer();
 
 // handle requests
-server.on('request', (req, res) => {
+server.on('request', async (req, res) => {
 
   if (req.url == '/upload' && req.method.toLowerCase() === 'post') {
     // handle upload
@@ -184,97 +184,94 @@ server.on('request', (req, res) => {
       maxFileSize: maxFileSize,
     });
 
-    form.parse(req, async (err, fields, files) => {
-      if (err) {
-        console.log(new Date().toUTCString(), `- Error parsing form data: ${err.message}`);
+    let fields;
+    let files;
+    try {
+      [fields, files] = await form.parse(req);
+    } catch (err) {
+      console.log(new Date().toUTCString(), `- Error parsing form data: ${err.message}`);
+      res.statusCode = 400; // Bad Request
+      res.write(`Error parsing form data! ${err.message}`);
+      return res.end();
+    }
+
+    if (token && (!fields.token || fields.token[0] !== token)) {
+      res.statusCode = 401; // Unauthorized
+      res.write('Wrong token!');
+      await cleanupUploads(files.uploads);
+      return res.end();
+    }
+
+    // check if any files are uploaded
+    if (!files.uploads) {
+      res.statusCode = 400; // Bad Request
+      // If a file is uploaded without Content-Type given for the multipart part
+      // it's parsed as a string field and not as file. Send a detailed error
+      // message in this case.
+      if (fields.uploads) {
+        res.write('No files uploaded! A field called "uploads" is preset but there was probably missing the "Content-Type" for it. Check the docs how to solve this.');
+      } else {
+        res.write('No files uploaded!');
+      }
+      await cleanupUploads(files.uploads);
+      return res.end();
+    }
+
+    let targetPath = uploadDir;
+
+    if (fields.path && typeof fields.path[0] === 'string') {
+      if (!fields.path[0].match(pathMatchRegExp)) {
         res.statusCode = 400; // Bad Request
-        res.write(`Error parsing form data! ${err.message}`);
-        return res.end();
-      }
-
-      if (!Array.isArray(files.uploads)) {
-        files.uploads = [files.uploads];
-      }
-
-      if (token && fields.token !== token) {
-        res.statusCode = 401; // Unauthorized
-        res.write('Wrong token!');
+        res.write('Invalid path!');
         await cleanupUploads(files.uploads);
         return res.end();
       }
 
-      // check if any files are uploaded
-      if (!files.uploads[0]) {
-        res.statusCode = 400; // Bad Request
-        // If a file is uploaded without Content-Type given for the multipart part
-        // it's parsed as a string field and not as file. Send a detailed error
-        // message in this case.
-        if (fields.uploads) {
-          res.write('No files uploaded! A field called "uploads" is preset but there was probably missing the "Content-Type" for it. Check the docs how to solve this.');
-        } else {
-          res.write('No files uploaded!');
-        }
-        await cleanupUploads(files.uploads);
-        return res.end();
-      }
+      targetPath = path.join(uploadDir, fields.path[0]);
+    }
 
-      let targetPath = uploadDir;
+    // check if target folder exists - if not create it if folder creation is enabled
+    try {
+      // get path stats and expect an error if not exists
+      await fsPromises.stat(targetPath);
 
-      if (fields.path) {
-        if (!fields.path.match(pathMatchRegExp)) {
-          res.statusCode = 400; // Bad Request
-          res.write('Invalid path!');
-          await cleanupUploads(files.uploads);
-          return res.end();
-        }
-
-        targetPath = path.join(uploadDir, fields.path);
-      }
-
-      // check if target folder exists - if not create it if folder creation is enabled
-      try {
-        // get path stats and expect an error if not exists
-        await fsPromises.stat(targetPath);
-
-      } catch (err) {
-        // path does not exist
-        if (enableFolderCreation) {
-          console.log(`Target path ${targetPath} does not exist, creating it`);
-          try {
-            await fsPromises.mkdir(targetPath, { recursive: true });
-          } catch (err2) {
-            console.log(`Error creating target path! ${err2}`);
-            res.statusCode = 500; // Internal Server Error
-            res.write(`Error creating target path! ${err2.message}`);
-            return res.end();
-          }
-        } else {
-          res.statusCode = 400; // Bad Request
-          res.write('Path does not exist!');
-          await cleanupUploads(files.uploads);
-          return res.end();
-        }
-      }
-
-      // move uploaded files to target path
-      let count = 0;
-      for (const file of files.uploads) {
-        if (!file) continue;
-        const newPath = path.join(targetPath, file.originalFilename);
+    } catch (err) {
+      // path does not exist
+      if (enableFolderCreation) {
+        console.log(`Target path ${targetPath} does not exist, creating it`);
         try {
-          await fsPromises.rename(file.filepath, newPath);
-          console.log(new Date().toUTCString(), '- File uploaded', newPath);
-          count++;
-        } catch (err) {
-          console.log(`Error moving temporary file to target path! ${err}`);
+          await fsPromises.mkdir(targetPath, { recursive: true });
+        } catch (err2) {
+          console.log(`Error creating target path! ${err2}`);
+          res.statusCode = 500; // Internal Server Error
+          res.write(`Error creating target path! ${err2.message}`);
+          return res.end();
         }
+      } else {
+        res.statusCode = 400; // Bad Request
+        res.write('Path does not exist!');
+        await cleanupUploads(files.uploads);
+        return res.end();
       }
+    }
 
-      res.statusCode = 200; // OK
-      res.write(count > 1 ? `${count} files uploaded!` : 'File uploaded!');
-      res.end();
+    // move uploaded files to target path
+    let count = 0;
+    for (const file of files.uploads) {
+      if (!file) continue;
+      const newPath = path.join(targetPath, file.originalFilename);
+      try {
+        await fsPromises.rename(file.filepath, newPath);
+        console.log(new Date().toUTCString(), '- File uploaded', newPath);
+        count++;
+      } catch (err) {
+        console.log(`Error moving temporary file to target path! ${err}`);
+      }
+    }
 
-    });
+    res.statusCode = 200; // OK
+    res.write(count > 1 ? `${count} files uploaded!` : 'File uploaded!');
+    res.end();
 
   } else {
     // show index page

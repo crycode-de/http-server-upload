@@ -89,7 +89,7 @@ Example for uploading content from a pipe:
 cat my-file.dat | curl -F "uploads=@-;filename=my-file.dat;type=application/octet-stream" http://localhost:8080/upload
 ```
 Notice the required `filename` and `type` defintions for uploading piped data.  
-The `type` if the mime type of the data to upload.
+The `type` is the mime type of the data to upload.
 
 ## License
 
