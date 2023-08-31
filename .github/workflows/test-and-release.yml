@@ -39,6 +39,9 @@ jobs:
             - name: Run tests
               run: npm run test
 
+            - name: Lint
+              run: npm run lint
+
     # Deploys the final package to NPM
     deploy:
         needs: [tests]

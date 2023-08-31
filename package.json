@@ -28,10 +28,15 @@
   "dependencies": {
     "formidable": "^3.5.1"
   },
+  "devDependencies": {
+    "@crycode/eslint-config-js": "^1.0.0",
+    "eslint": "^8.48.0"
+  },
   "engines": {
     "node": ">=10"
   },
   "scripts": {
-    "test": "./test/test.sh"
+    "test": "./test/test.sh",
+    "lint": "eslint http-server-upload.js"
   }
 }

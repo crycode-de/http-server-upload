@@ -86,7 +86,7 @@ while (myArgs.length > 0) {
   if (arg.startsWith('--')) {
     // it's an option ...
 
-    let [key, val] = arg.split(/=(.*)/); // --dir=test=123 will give ['--dir','test=123','']
+    let [ key, val ] = arg.split(/=(.*)/); // --dir=test=123 will give ['--dir','test=123','']
 
     // options without values
     if (key === '--disable-auto-port') {
@@ -176,7 +176,7 @@ const server = http.createServer();
 // handle requests
 server.on('request', async (req, res) => {
 
-  if (req.url == '/upload' && req.method.toLowerCase() === 'post') {
+  if (req.url === '/upload' && req.method.toLowerCase() === 'post') {
     // handle upload
     const form = new formidable.IncomingForm({
       uploadDir: uploadTmpDir,
@@ -187,7 +187,7 @@ server.on('request', async (req, res) => {
     let fields;
     let files;
     try {
-      [fields, files] = await form.parse(req);
+      [ fields, files ] = await form.parse(req);
     } catch (err) {
       console.log(new Date().toUTCString(), `- Error parsing form data: ${err.message}`);
       res.statusCode = 400; // Bad Request
@@ -284,7 +284,7 @@ server.on('request', async (req, res) => {
   <title>http-server-upload</title>
 </head>
 <body>
-<form action="upload" method="post" enctype="multipart/form-data" onsubmit="let totalSize=0, files=document.getElementById('fileinput').files; for (let file of files){totalSize+=file.size} if(files.length){return (totalSize<${maxFileSize})?true:(alert(\`Cannot upload. Input files \${(totalSize/1024/1024).toFixed(2)} MB exceed ${maxFileSize/1024/1024} MB limit.\`),false) }else{alert('No file selected.');return false}">
+<form action="upload" method="post" enctype="multipart/form-data" onsubmit="let totalSize=0, files=document.getElementById('fileinput').files; for (let file of files){totalSize+=file.size} if(files.length){return (totalSize<${maxFileSize})?true:(alert(\`Cannot upload. Input files \${(totalSize/1024/1024).toFixed(2)} MB exceed ${maxFileSize / 1024 / 1024} MB limit.\`),false) }else{alert('No file selected.');return false}">
   Files: <input id="fileinput" type="file" name="uploads" multiple="multiple"><br />
   Upload path: <input type="text" name="path" value=""><br />
   ${token ? 'Token: <input type="text" name="token" value=""><br />' : ''}
