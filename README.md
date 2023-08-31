@@ -14,7 +14,9 @@ Optionally a token may be used to protect against unauthorized uploads.
 
 ## Installation
 
-```
+Version 3 of `http-server-upload` requires Node.js 14.18 or higher.
+
+```sh
 npm install --global http-server-upload
 ```
 
@@ -23,7 +25,7 @@ This will install `http-server-upload` globally so that it may be run from the c
 
 ## Usage
 
-```
+```sh
 http-server-upload [arguments] [uploadRootPath]
 ```
 
@@ -58,7 +60,7 @@ corresponding environment variable will be ignored.
 | `--help`, `-h` | | Show some help text | |
 
 Examples:
-```
+```sh
 PORT=9000 UPLOAD_DIR=~/uploads/ UPLOAD_TMP_DIR=/tmp/ TOKEN=my-super-secret-token http-server-upload
 
 http-server-upload --port=9000 --upload-dir="c:\users\peter\Path With Whitespaces\"
@@ -70,12 +72,12 @@ PORT=9000 http-server-upload --disable-auto-port --enable-folder-creation ./
 ### Uploads from the command line
 
 If the `http-server-upload` is running, you may also upload files from the command line using `curl`:
-```
+```sh
 curl -F "uploads=@my-file.txt" http://localhost:8080/upload
 ```
 
 Advanced example with multiple files, an upload path and a required token:
-```
+```sh
 curl \
   -F "uploads=@my-file.txt" \
   -F "uploads=@my-other-file.txt" \
@@ -85,7 +87,7 @@ curl \
 ```
 
 Example for uploading content from a pipe:
-```
+```sh
 cat my-file.dat | curl -F "uploads=@-;filename=my-file.dat;type=application/octet-stream" http://localhost:8080/upload
 ```
 Notice the required `filename` and `type` defintions for uploading piped data.  

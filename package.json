@@ -1,6 +1,6 @@
 {
   "name": "http-server-upload",
-  "version": "2.3.0",
+  "version": "3.0.0",
   "description": "A Simple zero-configuration command-line http server for uploading files",
   "bin": "bin/http-server-upload",
   "main": "http-server-upload.js",
@@ -33,7 +33,7 @@
     "eslint": "^8.48.0"
   },
   "engines": {
-    "node": ">=10"
+    "node": ">=14.18"
   },
   "scripts": {
     "test": "./test/test.sh",
