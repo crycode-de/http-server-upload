@@ -10,11 +10,11 @@
  */
 'use strict';
 
-const http = require('http');
-const formidable = require('formidable');
-const fsPromises = require('fs').promises;
-const path = require('path');
-const os = require('os');
+import http from 'node:http';
+import { IncomingForm } from 'formidable';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import os from 'node:os';
 
 let port = process.env.PORT || 8080;
 let disableAutoPort = !!process.env.DISABLE_AUTO_PORT;
@@ -155,7 +155,7 @@ console.log(`Upload target dir is ${uploadDir}`);
 
 /**
  * Cleanup uploaded temp files.
- * @param {formidable.File[] | undefined} uploads
+ * @param {import('formidable').File[] | undefined} uploads
  */
 async function cleanupUploads (uploads) {
   if (!uploads) return;
@@ -163,7 +163,7 @@ async function cleanupUploads (uploads) {
   for (const file of uploads) {
     if (!file) continue;
     try {
-      await fsPromises.unlink(file.filepath);
+      await fs.unlink(file.filepath);
     } catch (err) {
       console.log(`Error removing temporary file! ${file.filepath} ${err}`);
     }
@@ -178,7 +178,7 @@ server.on('request', async (req, res) => {
 
   if (req.url === '/upload' && req.method.toLowerCase() === 'post') {
     // handle upload
-    const form = new formidable.IncomingForm({
+    const form = new IncomingForm({
       uploadDir: uploadTmpDir,
       multiples: true,
       maxFileSize: maxFileSize,
@@ -233,14 +233,14 @@ server.on('request', async (req, res) => {
     // check if target folder exists - if not create it if folder creation is enabled
     try {
       // get path stats and expect an error if not exists
-      await fsPromises.stat(targetPath);
+      await fs.stat(targetPath);
 
     } catch (err) {
       // path does not exist
       if (enableFolderCreation) {
         console.log(`Target path ${targetPath} does not exist, creating it`);
         try {
-          await fsPromises.mkdir(targetPath, { recursive: true });
+          await fs.mkdir(targetPath, { recursive: true });
         } catch (err2) {
           console.log(`Error creating target path! ${err2}`);
           res.statusCode = 500; // Internal Server Error
@@ -261,7 +261,7 @@ server.on('request', async (req, res) => {
       if (!file) continue;
       const newPath = path.join(targetPath, file.originalFilename);
       try {
-        await fsPromises.rename(file.filepath, newPath);
+        await fs.rename(file.filepath, newPath);
         console.log(new Date().toUTCString(), '- File uploaded', newPath);
         count++;
       } catch (err) {
