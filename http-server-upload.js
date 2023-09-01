@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /*
  * HTTP Server Upload
  *
