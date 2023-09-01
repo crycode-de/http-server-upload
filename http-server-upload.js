@@ -25,6 +25,7 @@ let token = process.env.TOKEN || false;
 let pathMatchRegExp = (process.env.PATH_REGEXP) ? new RegExp(process.env.PATH_REGEXP) : /^[a-zA-Z0-9-_/]*$/;
 let maxFileSize = (parseInt(process.env.MAX_FILE_SIZE, 10) || 200) * 1024 * 1024;
 let enableFolderCreation = !!process.env.ENABLE_FOLDER_CREATION;
+let indexFile = process.env.INDEX_FILE || false;
 
 console.log('HTTP Server Upload');
 
@@ -65,6 +66,10 @@ Argument | Environmen variable
   Disable automatic port increase if the port is nor available. [Not set]
 --enable-folder-creation | ENABLE_FOLDER_CREATION
   Enable automatic folder creation when uploading file to non-existent folder. [Not set]
+--index-file | INDEX_FILE
+  Use a custom html file as index instead of the default internal index.
+  If used, the form fields need to have the same names as in
+  the original index. [Not set]
 --help or -h
   Show this help text.
 
@@ -134,6 +139,9 @@ while (myArgs.length > 0) {
       case '--max-size':
       case '--max-file-size':
         maxFileSize = (parseInt(val, 10) || 200) * 1024 * 1024;
+        break;
+      case '--index-file':
+        indexFile = val;
         break;
 
       default:
@@ -277,6 +285,19 @@ server.on('request', async (req, res) => {
   } else {
     // show index page
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+
+    if (indexFile) {
+      // try to load custom index file
+      try {
+        const index = await fs.readFile(indexFile, { encoding: 'utf-8' });
+        res.write(index);
+        return res.end();
+      } catch (err) {
+        console.log(`Error serving custom index file! ${err}`);
+      }
+    }
+
+    // default index file
     res.write(`<!DOCTYPE html>
 <html lang="en">
 <head>

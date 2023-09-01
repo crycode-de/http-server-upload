@@ -57,6 +57,7 @@ corresponding environment variable will be ignored.
 | `--path-regexp` | `PATH_REGEXP` | A regular expression to verify a given upload path. This should be set with care, because it may allow write access to outside the upload directory. | `/^[a-zA-Z0-9-_/]*$/` |
 | `--disable-auto-port` | `DISABLE_AUTO_PORT` | Disable automatic port increase if the port is nor available. | Not set. |
 | `--enable-folder-creation` | `ENABLE_FOLDER_CREATION` | Enable automatic folder creation when uploading file to non-existent folder. | Not set. |
+| `--index-file` | `INDEX_FILE` | Use a custom html file as index instead of the default internal index. If used, the form fields need to have the same names as in the original index. | Not set. |
 | `--help`, `-h` | | Show some help text | |
 
 Examples:
