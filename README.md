@@ -11,7 +11,6 @@ By default files are uploaded to the current working directory.
 
 Optionally a token may be used to protect against unauthorized uploads.
 
-
 ## Installation
 
 Version 3 of `http-server-upload` requires Node.js 14.18 or higher.
@@ -21,7 +20,6 @@ npm install --global http-server-upload
 ```
 
 This will install `http-server-upload` globally so that it may be run from the command line.
-
 
 ## Usage
 
@@ -39,7 +37,6 @@ If the desired port is already in use, the port will be increased automatically
 until the next free port is found. This can be disabled, see below.
 
 *Attention:* Already existing files will be overwritten on upload.
-
 
 ### Arguments and environment variables
 
@@ -61,6 +58,7 @@ corresponding environment variable will be ignored.
 | `--help`, `-h` | | Show some help text | |
 
 Examples:
+
 ```sh
 PORT=9000 UPLOAD_DIR=~/uploads/ UPLOAD_TMP_DIR=/tmp/ TOKEN=my-super-secret-token http-server-upload
 
@@ -69,15 +67,16 @@ http-server-upload --port=9000 --upload-dir="c:\users\peter\Path With Whitespace
 PORT=9000 http-server-upload --disable-auto-port --enable-folder-creation ./
 ```
 
-
 ### Uploads from the command line
 
 If the `http-server-upload` is running, you may also upload files from the command line using `curl`:
+
 ```sh
 curl -F "uploads=@my-file.txt" http://localhost:8080/upload
 ```
 
 Advanced example with multiple files, an upload path and a required token:
+
 ```sh
 curl \
   -F "uploads=@my-file.txt" \
@@ -88,9 +87,13 @@ curl \
 ```
 
 Example for uploading content from a pipe:
+
 ```sh
-cat my-file.dat | curl -F "uploads=@-;filename=my-file.dat;type=application/octet-stream" http://localhost:8080/upload
+cat my-file.dat \
+  | curl -F "uploads=@-;filename=my-file.dat;type=application/octet-stream" \
+  http://localhost:8080/upload
 ```
+
 Notice the required `filename` and `type` defintions for uploading piped data.  
 The `type` is the mime type of the data to upload.
 
@@ -98,4 +101,4 @@ The `type` is the mime type of the data to upload.
 
 MIT license
 
-Copyright (c) 2019-2023 Peter Müller <peter@crycode.de> https://crycode.de
+Copyright (c) 2019-2023 Peter Müller <peter@crycode.de> <https://crycode.de>

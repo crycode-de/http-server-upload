@@ -1,9 +1,9 @@
 # Changelog
 
-## v3.0.0 (WIP)
+## v3.0.0 (2023-09-11)
 
 * 💥 Require Node.js >= 14.18
-* Added correct http status codes for error responses
+* 💥 Added correct http status codes for error responses
 * Added option to serve a custom index html file
 * Fixed false upload ok message when no file was uploaded
 * Updated formidable dependency
