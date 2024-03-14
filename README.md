@@ -38,25 +38,26 @@ until the next free port is found. This can be disabled, see below.
 
 *Attention:* Already existing files will be overwritten on upload.
 
-### Docker mode
+### Docker
 
-You can just build a container image from this repository.
+You can use the docker image [crycode/http-server-upload](https://hub.docker.com/r/crycode/http-server-upload) from the Docker Hub.
+
+Simple usage example:
+
+```sh
+docker run --rm -it -p 8080:8080 crycode/http-server-upload
+```
+
+You may also overwrite default options using environment variables  (see below for available variables) and use volumes or bind mounts for upload storage:
+
+```sh
+docker run --rm -it -p 8080:8080 -e TOKEN=foo -e ENABLE_FOLDER_CREATION=1 -v $(pwd):/upload crycode/http-server-upload
+```
+
+Or you build a container image youself from this repository:
 
 ```sh
 docker build -t http-server-upload .
-```
-
-Then run it without argument for default
-
-```sh
-docker run --rm -ti http-server-upload
-```
-
-Or you can override default values with environment variables (see blow for available variables).
-`UPLOAD_DIR` and `UPLOAD_TMP_DIR` are set to `/upload`. You may find it useful to mount a volume in this directory to keep uploaded files. Keep in mind that this volume must be writeable by the `node` user. More complete example.
-
-```sh
-docker run --rm -ti -e PORT=9090 -e UPLOAD_DIR=/data -v myvolume:/data -p 80:9090 http-server-upload
 ```
 
 ### Arguments and environment variables
@@ -122,4 +123,4 @@ The `type` is the mime type of the data to upload.
 
 MIT license
 
-Copyright (c) 2019-2023 Peter Müller <peter@crycode.de> <https://crycode.de>
+Copyright (c) 2019-2024 Peter Müller <peter@crycode.de> <https://crycode.de>
