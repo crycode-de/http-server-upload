@@ -38,6 +38,28 @@ until the next free port is found. This can be disabled, see below.
 
 *Attention:* Already existing files will be overwritten on upload.
 
+### Docker mode
+
+You can just build a container image from this repository.
+
+```sh
+docker build -t http-server-upload .
+```
+
+Then run it without argument for default
+
+```sh
+docker run --rm -ti http-server-upload
+```
+
+Or you can override default values with environment variables (only UPLOAD_DIR, UPLOAD_TMP_DIR, MAX_FILE_SIZE, TOKEN and INDEX_FILE for now).
+`UPLOAD_DIR` and `UPLOAD_TMP_DIR` are set to `/upload`. You may find it useful to mount a volume in this directory to keep uploaded files. Keep 
+in mind that this volume must be writeable by the `node` user. More complete example.
+
+```sh
+docker run --rm -ti -e PORT=9090 -e UPLOAD_DIR=/data -v myvolume:/data -p 80:9090 http-server-upload
+```
+
 ### Arguments and environment variables
 
 The optional configuration is done by command line arguments or environment variables.  
