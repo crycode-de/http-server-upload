@@ -26,7 +26,7 @@
     "README.md"
   ],
   "dependencies": {
-    "formidable": "^3.5.1"
+    "formidable": "^3.5.4"
   },
   "devDependencies": {
     "@crycode/eslint-config-js": "^1.1.0",
