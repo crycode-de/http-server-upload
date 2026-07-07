@@ -161,6 +161,9 @@ while (myArgs.length > 0) {
   }
 }
 
+// resolve the upload dir to get the real path
+uploadDir = path.resolve(uploadDir);
+
 console.log(`Upload target dir is ${uploadDir}`);
 
 /**
@@ -270,7 +273,12 @@ server.on('request', async (req, res) => {
     let count = 0;
     for (const file of files.uploads) {
       if (!file) continue;
-      const newPath = path.join(targetPath, file.originalFilename);
+      const safeName = path.basename(file.originalFilename);
+      const newPath = path.resolve(path.join(targetPath, safeName));
+      if (!newPath.startsWith(uploadDir + path.sep)) {
+        console.log(`Error: File path ${newPath} is outside upload directory!`);
+        continue;
+      }
       try {
         await fs.rename(file.filepath, newPath);
         console.log(new Date().toUTCString(), '- File uploaded', newPath);
