@@ -7,7 +7,7 @@
  * https://github.com/crycode-de/http-server-upload
  *
  * MIT license
- * Copyright (c) 2019-2024 Peter Müller <peter@crycode.de> https://crycode.de
+ * Copyright (c) 2019-2026 Peter Müller <peter@crycode.de> https://crycode.de
  */
 'use strict';
 
@@ -92,6 +92,7 @@ while (myArgs.length > 0) {
   if (arg.startsWith('--')) {
     // it's an option ...
 
+    // eslint-disable-next-line prefer-const
     let [ key, val ] = arg.split(/=(.*)/); // --dir=test=123 will give ['--dir','test=123','']
 
     // options without values
@@ -244,6 +245,7 @@ server.on('request', async (req, res) => {
       // get path stats and expect an error if not exists
       await fs.stat(targetPath);
 
+    // eslint-disable-next-line no-unused-vars
     } catch (err) {
       // path does not exist
       if (enableFolderCreation) {

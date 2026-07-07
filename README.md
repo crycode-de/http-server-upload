@@ -31,7 +31,7 @@ http-server-upload [arguments] [uploadRootPath]
 
 Other options can be set using environment variables.
 
-When the server is running you can visit http://localhost:8080/ to get the upload form.
+When the server is running you can visit `http://localhost:8080/` to get the upload form.
 
 If the desired port is already in use, the port will be increased automatically
 until the next free port is found. This can be disabled, see below.
@@ -67,7 +67,7 @@ If both are used, the arguments have higher priority and the value from the
 corresponding environment variable will be ignored.
 
 | Argument | Variable | Description | Default |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `--port` | `PORT` | The port to use. | `8080` |
 | `--upload-dir` | `UPLOAD_DIR` | The directory where the files should be uploaded to. This overrides the `uploadRootPath` argument. | `uploadRootPath` argument or the current working directory |
 | `--upload-tmp-dir` | `UPLOAD_TMP_DIR` | Temp directory for the file upload. | The upload directory. |
@@ -123,4 +123,4 @@ The `type` is the mime type of the data to upload.
 
 MIT license
 
-Copyright (c) 2019-2024 Peter Müller <peter@crycode.de> <https://crycode.de>
+Copyright (c) 2019-2026 Peter Müller <peter@crycode.de> <https://crycode.de>

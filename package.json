@@ -29,8 +29,8 @@
     "formidable": "^3.5.4"
   },
   "devDependencies": {
-    "@crycode/eslint-config-js": "^1.1.0",
-    "eslint": "^8.57.0"
+    "@crycode/eslint-config": "^3.2.1",
+    "eslint": "^10.6.0"
   },
   "engines": {
     "node": ">=14.18"
