@@ -1,5 +1,12 @@
 # Changelog
 
+## v3.1.0 (2026-07-07)
+
+* 🐛 Fixed possible security issue where uploaded files could be saved outside of the upload dir or in unauthorized sub dirs
+* Docker Image now uses node24
+* Optimized Docker image size
+* Updated dependencies
+
 ## v3.0.0 (2023-09-11)
 
 * 💥 Require Node.js >= 14.18
