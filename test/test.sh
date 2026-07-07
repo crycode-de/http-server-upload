@@ -7,7 +7,7 @@ cd $(dirname ${BASH_SOURCE[0]:-$0})
 function cleanup {
   RV=$?
 
-  rm -rf tmp0 tmp1 tmp2 tmp3
+  rm -rf tmp0 tmp1 tmp2 tmp3 tmp4
   if [ -n "$PID" ]; then
     kill -s SIGINT $PID 2>/dev/null
   fi
@@ -26,7 +26,7 @@ grep '"version":' ../package.json | cut -d'"' -f4
 
 echo -e "\n----- Create files -----\n"
 
-mkdir -p tmp0 tmp1 tmp2
+mkdir -p tmp0 tmp1 tmp2 tmp4
 
 echo "This is a test!" > tmp1/file.txt
 dd if=/dev/urandom of=tmp1/file.bin bs=1024 count=1 2>/dev/null
@@ -82,6 +82,24 @@ curl \
   http://localhost:8080/upload
 echo
 
+echo -e "\n----- Upload files with paths in filenames -----\n"
+
+cat tmp1/file.txt \
+  | curl \
+  -F "uploads=@-;filename=../parent.txt;type=text/plain" \
+  -F "path=tmp4" \
+  -F "token=$TOKEN" \
+  http://localhost:8080/upload
+echo
+
+cat tmp1/file.txt \
+  | curl \
+  -F "uploads=@-;filename=sub/sub.txt;type=text/plain" \
+  -F "path=tmp4" \
+  -F "token=$TOKEN" \
+  http://localhost:8080/upload
+echo
+
 echo -e "\n----- Check files -----\n"
 cmp tmp1/file.txt tmp2/file.txt
 echo "file.txt ok"
@@ -97,5 +115,11 @@ echo "piped.bin ok"
 
 cmp tmp1/file.txt tmp3/file.txt
 echo "file.txt with folder creation ok"
+
+cmp tmp1/file.txt tmp4/parent.txt
+echo "parent.txt with path stripped ok"
+
+cmp tmp1/file.txt tmp4/sub.txt
+echo "sub.txt with path stripped ok"
 
 echo -e "\n----- Checks passed -----\n"
