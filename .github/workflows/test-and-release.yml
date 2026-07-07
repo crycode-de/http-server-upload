@@ -54,7 +54,7 @@ jobs:
                   node-version: ${{ matrix.node-version }}
 
             - name: Install Dependencies
-              run: npm ci
+              run: npm install # no `npm ci` here since older versions of node doesn't support the lock file correctly
 
             - name: Run tests
               run: npm run test
