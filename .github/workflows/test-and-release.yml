@@ -65,7 +65,7 @@ jobs:
 
         permissions:
             id-token: write
-            contents: read
+            contents: write
 
         # Trigger this step only when a commit on master is tagged with a version number
         if: |
