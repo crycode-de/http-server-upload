@@ -1,37 +1,40 @@
-FROM node:20
+# --- Build stage: install dependencies ---
+FROM node:24-slim AS builder
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+
+RUN npm ci --no-fund --omit dev
+
+# --- Final stage: minimal runtime image ---
+FROM node:24-slim
 
 LABEL org.opencontainers.image.authors="Peter Müller <peter@crycode.de> (https://crycode.de/)"
 
-ENV USER node
-ENV PORT 8080
+ENV USER=node \
+    PORT=8080 \
+    WORKDIR=/app \
+    UPLOAD_DIR="/upload" \
+    UPLOAD_TMP_DIR="/upload" \
+    DISABLE_AUTO_PORT="1" \
+    ENABLE_FOLDER_CREATION="" \
+    INDEX_FILE="" \
+    MAX_FILE_SIZE=200 \
+    PATH_REGEXP="" \
+    TOKEN=""
+
 EXPOSE ${PORT}
-ENV WORDIR /app
-WORKDIR ${WORDIR}
+WORKDIR ${WORKDIR}
 
-ENV UPLOAD_DIR "/upload"
-ENV UPLOAD_TMP_DIR "/upload"
+# copy only runtime files
+COPY --from=builder /app/node_modules ./node_modules
+COPY http-server-upload.js package.json README.md ./
 
-# default environment variables
-ENV DISABLE_AUTO_PORT "1"
-ENV ENABLE_FOLDER_CREATION ""
-ENV INDEX_FILE ""
-ENV MAX_FILE_SIZE 200
-ENV PATH_REGEXP ""
-ENV TOKEN ""
-
-# copy app
-COPY http-server-upload.js \
-  package.json \
-  package-lock.json \
-  README.md \
-  ${WORDIR}
-
-# install dep
 RUN mkdir -p ${UPLOAD_DIR} ${UPLOAD_TMP_DIR} && \
-    chown -R ${USER} ${WORDIR} ${UPLOAD_DIR} ${UPLOAD_TMP_DIR} && \
-    chmod 700 ${WORDIR} ${UPLOAD_DIR} ${UPLOAD_TMP_DIR}
+    chown -R ${USER} ${WORKDIR} ${UPLOAD_DIR} ${UPLOAD_TMP_DIR} && \
+    chmod 700 ${WORKDIR} ${UPLOAD_DIR} ${UPLOAD_TMP_DIR}
 
 USER ${USER}
-RUN npm install --no-fund --omit dev
 
-CMD node http-server-upload.js
+CMD [ "node", "http-server-upload.js" ]
