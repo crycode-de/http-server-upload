@@ -11,11 +11,11 @@
  */
 'use strict';
 
-import http from 'node:http';
-import { IncomingForm } from 'formidable';
 import fs from 'node:fs/promises';
-import path from 'node:path';
+import http from 'node:http';
 import os from 'node:os';
+import path from 'node:path';
+import { IncomingForm } from 'formidable';
 
 let port = process.env.PORT || 8080;
 let disableAutoPort = !!process.env.DISABLE_AUTO_PORT;
