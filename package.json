@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "@crycode/eslint-config": "^3.2.1",
-    "eslint": "^10.8.0"
+    "eslint": "^10.11.0"
   },
   "engines": {
     "node": ">=14.18"
